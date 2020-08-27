@@ -21,6 +21,9 @@
             max-width: 100%;
             margin-left: 0
         }
+        *{
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -31,36 +34,16 @@
                 <div class="card-header">Tabel Barang</div>
                 <div class="card-body">
                     <a href="#" class="float-right btn btn-primary font-weight-light mb-3" id="btnTambah"><i class="fa fa-plus-circle"></i> Tambah Barang</a>
-                    <table class="table table-striped table-borderless">
+                    <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th onclick="openErrorDialog()">No</th>
-                                <th>Nama Barang</th>
-                                <th>Gambar Barang</th>
-                                <th>Stok</th>
-                                <th>Opsi</th>
+                                <th width="5%" class="text-center">No</th>
+                                <th width="50%">Nama Barang</th>
+                                <th width="10%" class="text-center">Stok</th>
+                                <th class="text-center">Opsi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @php
-                                $i = 1
-                            @endphp
-                            @foreach ($data as $barang)
-                                <tr>
-                                    <td>{{ $i }}</td>   
-                                    <td>{{ $barang->nama_barang }}</td>
-                                    <td>{{ $barang->nama_barang }}</td>
-                                    <td>{{ $barang->nama_barang }}</td>
-                                    <td>
-                                        <a href="#" class="btn btn-warning"><i class="fa fa-edit"></i></a>
-                                        <a href="#" class="btn btn-danger"><i class="fa fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                                @php
-                                    $i++
-                                @endphp
-                            @endforeach
-                        </tbody>
+                        <tbody id="tbl_barang_body"></tbody>
                     </table>
                 </div>
             </div>
@@ -112,9 +95,17 @@
 <script src="{{ asset('assets/js/script.js') }}"></script>
 <script>
     $(document).ready(()=>{
+        $.ajax({
+            type: "GET",
+            url: "{{ route('barang.alldata') }}",
+            data: "",
+            dataType: false,
+            success: function (response) {
+                $("#tbl_barang_body").html(response);
+            }
+        });
         $('#form-tambah').submit(function (event) { 
             event.preventDefault();
-
             $.ajax({
                 type: "POST",
                 url: "{{ route('barang.store') }}",
@@ -138,20 +129,5 @@
             });
         });
     });
-
-    function openErrorDialog() {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Something went wrong!'
-        })
-    }
-    function openSuccessDialog(){
-        Swal.fire(
-            'Good job!',
-            'You clicked the button!',
-            'success'
-        )
-    }
 </script>
 </html>

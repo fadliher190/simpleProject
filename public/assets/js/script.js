@@ -17,3 +17,19 @@ function tutupPopupTambah() {
         $(".popup-tambah").css("display", 'none');
     }, 300);
  }
+ 
+ function openErrorDialog() {
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!'
+    })
+}
+
+function openSuccessDialog(){
+    Swal.fire(
+        'Good job!',
+        'You clicked the button!',
+        'success'
+    )
+}

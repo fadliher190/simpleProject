@@ -16,8 +16,7 @@ class BarangController extends Controller
      */
     public function index()
     {
-        $data['data'] = Barang::all();
-        return view('barang', $data);
+        return view('barang');
     }
 
     /**
@@ -125,5 +124,11 @@ class BarangController extends Controller
     public function destroy($id)
     {
         //
+    }
+    
+    public function getAllBarang()
+    {
+        $data['data'] = Barang::all();
+        return view('tbody', $data);
     }
 }
