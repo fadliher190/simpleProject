@@ -1,0 +1,30 @@
+.popup-tambah{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background-color: rgba(0, 0, 0, .5);
+    display: none;
+}
+.popup-tambah .outer{
+    opacity: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    position: absolute;
+
+}
+.popup-tambah .form-container{
+    width: 50%;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform:translate(-50%, -50%);
+    opacity: 0;
+    transition: .3s;
+    z-index: 1000;
+}
