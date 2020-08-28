@@ -27,6 +27,11 @@
     </style>
 </head>
 <body>
+    
+    @include('popup_gambar')
+    @include('popup_tambah')
+    @include('popup_edit')
+
     <div class="row mt-4">
         <div class="col-md-2"></div>
         <div class="col-md-8">
@@ -53,7 +58,7 @@
                                     <td class="align-middle">{{ $barang->nama_barang }}</td>
                                     <td class="align-middle text-center">{{ $barang->stok_barang }}</td>
                                     <td class="text-center">
-                                        <a href="#" class="btn btn-warning"><i class="fa fa-edit"></i></a>
+                                        <a href="#" class="btn btn-warning" onclick="editBarang('{{ $barang->id }}')"><i class="fa fa-edit"></i></a>
                                         <a href="#" onclick="deleteBarang('{{ $barang->id }}')" class="btn btn-danger"><i class="fa fa-trash"></i></a>
                                         <a href="#" onclick="openGambar('{{ $barang->gambar_barang }}')" class="btn btn-primary font-weight-light"><i class="fa fa-eye"></i> Lihat Gambar</a>
                                     </td>
@@ -69,52 +74,7 @@
         </div>
     </div>
 
-    {{-- form popup add barang --}}
-    <div class="popup-tambah">
-        <div class="outer" onclick="tutupPopupTambah()"></div>
-        <div class="form-container">
-            <div class="card">
-                <div class="card-header text-primary font-weight-light">
-                    <i class="fa fa-plus-circle"></i> Tambah Data Barang
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-danger w-100 " id="message" style="display: none">
-                        <ul></ul>
-                    </div>
-                    <form class="form" id="form-tambah" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group">
-                            <label for="nama_barang">
-                                <small>Nama Barang <span class="text-danger">*</span></small>
-                            </label>
-                            <input type="text" class="form-control font-weight-light" name="nama_barang" id="nama_barang">
-                        </div>
-                        <div class="form-group">
-                            <label for="gambar_barang">
-                                <small>File Gambar <span class="text-danger">*</span></small>
-                            </label>
-                            <input type="file" class="form-control font-weight-light" name="gambar_barang" id="gambar_barang">
-                        </div>
-                        <div class="form-group">
-                            <label for="stok_barang">
-                                <small>Stok <span class="text-danger">*</span></small>
-                            </label>
-                            <input type="number" class="form-control font-weight-light" name="stok_barang" id="stok_barang">
-                        </div>
-                        <button type="submit" class=" btn btn-primary float-right ml-2 font-weight-light" id="btnSubmitTambah"><i class="fa fa-save"></i> Simpan</button>
-                        <a href="#" class="btn btn-danger float-right font-weight-light" id="btnBatal" onclick="tutupPopupTambah()"><i class="fa fa-times"></i> Batal</a>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    {{-- end form popup add barang --}}
-    {{-- form popup Gambar --}}
-    <div class="popup-gambar">
-        <div class="outer" onclick="closeGambar()"></div>
-        <img src="/" alt="" id="img">
-    </div>
-    {{-- end form popup Gambar --}}
+    
 
 </body>
 <script src="{{ asset('assets/js/script.js') }}"></script>
@@ -145,16 +105,65 @@
                 }
             });
         });
+        $('#form-edit').submit(function (event) { 
+            event.preventDefault();
+
+           Swal.fire({
+            title: 'Yakin?',
+            text: "Kamu tidak dapat mengembalikan data ini",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Iya, Simpan Data Ini!',
+            cancelButtonText: 'Tidak, Batal!',
+            reverseButtons: true
+            }).then((result) => {
+                var id_barang =  $("#id_barang").val();
+                if (result.value) {
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('barang.home').'/update/' }}" + id_barang,
+                        data: new FormData(this),
+                        dataType: "JSON",
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.status == '1') {
+                                openSuccessDialog(response.msg);
+                            }else{
+                                openErrorDialog(response.msg);
+                                $("#message_edit").find("ul").html('');
+                                $("#message_edit").css('display', 'block');
+                                $.each( response.error, function( key, value ) {
+                                    $("#message_edit").find("ul").append('<li><small>'+value+'</small></li>');
+                                });
+                            }
+                        }
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    Swal.fire(
+                    'Batal',
+                    'Data Tidak Jadi Di Edit :)',
+                    'error'
+                    )
+                }
+            })
+           
+        });
+        
     });
 
     function deleteBarang(id) {
         Swal.fire({
-        title: 'Yakin?',
+            title: 'Yakin?',
             text: "Kamu tidak dapat mengembalikan data ini",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel!',
+            confirmButtonText: 'Iya, Hapus Data Ini!',
+            cancelButtonText: 'Tidak, Batal!',
             reverseButtons: true
             }).then((result) => {
                 if (result.value) {
@@ -164,6 +173,7 @@
                         data: "",
                         dataType: "",
                         success: function (response) {
+                            console.log(response);
                             if (response.status == '1') {
                                 openSuccessDialog(response.msg)
                             }else{
@@ -176,7 +186,7 @@
                     result.dismiss === Swal.DismissReason.cancel
                 ) {
                     Swal.fire(
-                    'Cancelled',
+                    'Batal',
                     'Data Tidak Jadi Di Hapus :)',
                     'error'
                 )
@@ -185,22 +195,31 @@
         
     }
 
-    function openErrorDialog(msg) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: msg
-        }).then((res) => {
-        })
-    }
-    function openSuccessDialog(msg){
-        Swal.fire(
-            'Good job!',
-            msg,
-            'success'
-        ).then((res) => {
-            location.reload();
-        })
+    function editBarang(id) {
+
+        $.ajax({
+            type: "GET",
+            url: "{{ route('barang.home').'/edit/' }}" + id,
+            data: "",
+            dataType: "JSON",
+            success: function (response) {
+                console.log(response);
+
+                $(".popup-edit .form-container #id_barang").val(response.barang.id);
+                $(".popup-edit .form-container #nama_barang").val(response.barang.nama_barang);
+                $(".popup-edit .form-container #gambar_barang_preview").attr('src', response.barang.gambar_barang);
+                $(".popup-edit .form-container #stok_barang").val(response.barang.stok_barang);
+
+                $(".popup-edit").css("display", 'block');
+                setTimeout(() => {
+                    $(".popup-edit .form-container").css("top", '50%');
+                    $(".popup-edit .form-container").css("opacity", '1');
+                }, 100);
+
+            }
+        });
+
+
     }
     
     function openGambar(crypted){
@@ -209,13 +228,6 @@
         setTimeout(() => {
            $("#img").css("opacity", "1"); 
            $("#img").css("top", "50%"); 
-        }, 400);
-    }
-    function closeGambar(){
-        $("#img").css("opacity", "0"); 
-        $("#img").css("top", "35%"); 
-        setTimeout(() => {
-            $(".popup-gambar").css("display", "none");
         }, 400);
     }
 </script>
