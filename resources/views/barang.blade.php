@@ -43,7 +43,26 @@
                                 <th class="text-center">Opsi</th>
                             </tr>
                         </thead>
-                        <tbody id="tbl_barang_body"></tbody>
+                        <tbody>
+                            @php
+                                $i = 1
+                            @endphp
+                            @foreach ($data as $barang)
+                                <tr>
+                                    <td class="align-middle text-center">{{ $i }}</td>   
+                                    <td class="align-middle">{{ $barang->nama_barang }}</td>
+                                    <td class="align-middle text-center">{{ $barang->stok_barang }}</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-warning"><i class="fa fa-edit"></i></a>
+                                        <a href="#" onclick="deleteBarang('{{ $barang->id }}')" class="btn btn-danger"><i class="fa fa-trash"></i></a>
+                                        <a href="#" onclick="openGambar('{{ $barang->gambar_barang }}')" class="btn btn-primary font-weight-light"><i class="fa fa-eye"></i> Lihat Gambar</a>
+                                    </td>
+                                </tr>
+                                @php
+                                    $i++
+                                @endphp
+                            @endforeach
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -90,22 +109,20 @@
         </div>
     </div>
     {{-- end form popup add barang --}}
+    {{-- form popup Gambar --}}
+    <div class="popup-gambar">
+        <div class="outer" onclick="closeGambar()"></div>
+        <img src="/" alt="" id="img">
+    </div>
+    {{-- end form popup Gambar --}}
 
 </body>
 <script src="{{ asset('assets/js/script.js') }}"></script>
 <script>
     $(document).ready(()=>{
-        $.ajax({
-            type: "GET",
-            url: "{{ route('barang.alldata') }}",
-            data: "",
-            dataType: false,
-            success: function (response) {
-                $("#tbl_barang_body").html(response);
-            }
-        });
         $('#form-tambah').submit(function (event) { 
             event.preventDefault();
+
             $.ajax({
                 type: "POST",
                 url: "{{ route('barang.store') }}",
@@ -116,9 +133,9 @@
                 processData: false,
                 success: function (response) {
                     if (response.status == '1') {
-                        openSuccessDialog();
+                        openSuccessDialog(response.msg);
                     }else{
-                        openErrorDialog();
+                        openErrorDialog(response.msg);
                         $("#message").find("ul").html('');
                         $("#message").css('display', 'block');
                         $.each( response.error, function( key, value ) {
@@ -129,5 +146,77 @@
             });
         });
     });
+
+    function deleteBarang(id) {
+        Swal.fire({
+        title: 'Yakin?',
+            text: "Kamu tidak dapat mengembalikan data ini",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('barang.home').'/destroy/' }}"+id,
+                        data: "",
+                        dataType: "",
+                        success: function (response) {
+                            if (response.status == '1') {
+                                openSuccessDialog(response.msg)
+                            }else{
+                                openErrorDialog(response.msg);
+                            }
+                        }
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    Swal.fire(
+                    'Cancelled',
+                    'Data Tidak Jadi Di Hapus :)',
+                    'error'
+                )
+            }
+        })
+        
+    }
+
+    function openErrorDialog(msg) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: msg
+        }).then((res) => {
+        })
+    }
+    function openSuccessDialog(msg){
+        Swal.fire(
+            'Good job!',
+            msg,
+            'success'
+        ).then((res) => {
+            location.reload();
+        })
+    }
+    
+    function openGambar(crypted){
+        $("#img").attr("src", "{{ route('barang.home') }}/" + crypted);
+        $(".popup-gambar").css("display", "block");
+        setTimeout(() => {
+           $("#img").css("opacity", "1"); 
+           $("#img").css("top", "50%"); 
+        }, 400);
+    }
+    function closeGambar(){
+        $("#img").css("opacity", "0"); 
+        $("#img").css("top", "35%"); 
+        setTimeout(() => {
+            $(".popup-gambar").css("display", "none");
+        }, 400);
+    }
 </script>
 </html>

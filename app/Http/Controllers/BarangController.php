@@ -16,7 +16,8 @@ class BarangController extends Controller
      */
     public function index()
     {
-        return view('barang');
+        $data['data'] = Barang::all();
+        return view('barang', $data);
     }
 
     /**
@@ -38,7 +39,9 @@ class BarangController extends Controller
     public function store(Request $request)
     {
         $message = [
-            "required" => ":attribute harus di isi !"
+            "required" => ":attribute harus di isi !",
+            "image" => ":attribute harus berupa gambar",
+            "mimes" => ":attribute harus berformat jpeg, jpg, png"
         ];
 
         $validation = Validator::make($request->all(), [
@@ -65,7 +68,8 @@ class BarangController extends Controller
             
             return response()->json([
             
-                'status' => '1'
+                'status' => '1',
+                'msg' => "Tambah Data Berhasil"
             
             ], 200);
         
@@ -74,7 +78,8 @@ class BarangController extends Controller
             return response()->json([
         
                 'status' => '0',
-                'error' => $validation->errors()->all()
+                'error' => $validation->errors()->all(),
+                'msg' => "Tambah Data Gagal"
         
             ], 200);
         }
@@ -123,12 +128,17 @@ class BarangController extends Controller
      */
     public function destroy($id)
     {
-        //
-    }
-    
-    public function getAllBarang()
-    {
-        $data['data'] = Barang::all();
-        return view('tbody', $data);
+        $delete = Barang::find($id)->delete();
+        if($delete){
+            return response()->json([
+                "status" => "1",
+                "msg" => "Menghapus Data Berhasil",
+            ], 200);
+        }else{
+            return response()->json([
+                "status" => "0",
+                "msg" => "Menghapus Data Gagal",
+            ], 200);
+        }
     }
 }

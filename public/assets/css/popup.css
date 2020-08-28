@@ -1,3 +1,4 @@
+.popup-gambar,
 .popup-tambah{
     position: absolute;
     top: 0;
@@ -8,6 +9,7 @@
     background-color: rgba(0, 0, 0, .5);
     display: none;
 }
+.popup-gambar .outer,
 .popup-tambah .outer{
     opacity: 0;
     top: 0;
@@ -27,4 +29,13 @@
     opacity: 0;
     transition: .3s;
     z-index: 1000;
+}
+.popup-gambar img{
+    width: 300px;
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: .5s;
 }
